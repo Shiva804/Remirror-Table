@@ -14,6 +14,7 @@ import {
 import { setAttr } from "./table-column-resizing";
 
 import {
+  // alternateColor,
   defaultBackgroundColor,
   defaultBorder,
   defaultBorderColor,
@@ -70,10 +71,14 @@ export function addColumn(
   const border = table.attrs.border;
   const background = table.attrs.background;
   const borderColor = table.attrs.borderColor;
+  const alternateColorAttr = table.attrs.alternateColor;
 
   defaultBorder({ dispatch, state, tr }, border);
   defaultBackgroundColor({ dispatch, state, tr }, background);
   defaultBorderColor({ dispatch, state, tr }, borderColor);
+  // if (alternateColorAttr === "true" && background == "null") {
+  //   alternateColor({ dispatch, state, tr });
+  // }
 
   return tr;
 }
@@ -164,15 +169,18 @@ export function addRow(
   }
 
   tr.insert(rowPos, tableNodeTypes(table.type.schema).row.create(null, cells));
-  console.log("table", table);
 
   const border = table.attrs.border;
   const background = table.attrs.background;
   const borderColor = table.attrs.borderColor;
+  const alternateColorAttr = table.attrs.alternateColor;
 
   defaultBorder({ dispatch, state, tr }, border);
   defaultBackgroundColor({ dispatch, state, tr }, background);
   defaultBorderColor({ dispatch, state, tr }, borderColor);
+  // if (alternateColorAttr === "true" && background == "null") {
+  //   alternateColor({ dispatch, state, tr });
+  // }
 
   // defaultBorder(, border);
   // if (border !== "") {
@@ -187,6 +195,7 @@ export function addRow(
 
   return tr;
 }
+
 /**
  * Add a table row before the selection.
  */

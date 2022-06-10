@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { TableComponents, useActive } from "@remirror/react";
+import { useActive } from "@remirror/react";
+
 import {
   TextColorExtension,
   BoldExtension,
@@ -25,6 +26,7 @@ import {
   TableCellExtension,
   TableHeaderCellExtension,
   TableRowExtension,
+  TableComponents,
 } from "./CustomReactTableExtension";
 
 const CommandMenu = () => {
@@ -37,11 +39,20 @@ const CommandMenu = () => {
   const [borderColor, setBorderColor] = useState("");
   const [defaultBorder, setDefaultBorder] = useState("");
   const [defaultBorderColor, setDefaultBorderColor] = useState("");
-
-  const active = useActive(true);
+  // const [alternateColor, setAlternateColor] = useState(false);
 
   return (
     <div>
+      {/* <br />
+      <input
+        type="checkbox"
+        id="alternate-color"
+        onChange={() => setAlternateColor(!alternateColor)}
+      />
+      <label htmlFor="alternate-color">
+        Alternate table color (Default: Grey color)
+      </label>
+      <br></br> */}
       <br />
       <button
         onClick={() => {
@@ -50,10 +61,15 @@ const CommandMenu = () => {
             columnsCount: 3,
             withHeaderRow: true,
           });
+
+          // if (alternateColor) {
+          //   commands.applyAlternateColor();
+          // }
         }}
       >
         Create Table 3 x 3
       </button>
+
       <br />
       <br />
       <input
@@ -211,21 +227,14 @@ const CommandMenu = () => {
 };
 
 const extensions = () => [
-  // new CustomTableBorderExtension(),
-  // new TableExtension(),
-  new TableRowExtension({
-    extraAttributes: {
-      id: "null",
-    },
-  }),
   new TableExtension({
     extraAttributes: {
       // Remirror is smart enough to search the dom for the id if no `parseDOM`
       // method or `toDOM` method provided.
-      id: "null",
       border: "null",
       background: "null",
       borderColor: "null",
+      // alternateColor: "false",
     },
   }),
 

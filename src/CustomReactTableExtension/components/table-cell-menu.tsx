@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { PositionerPortal } from "@remirror/react-components";
-import { useCommands } from "@remirror/react-core";
+import { useCommands, useRemirrorContext } from "@remirror/react-core";
 import { useEvent, usePositioner } from "@remirror/react-hooks";
 import { ComponentsTheme } from "@remirror/theme";
 
@@ -65,7 +65,7 @@ const DefaultTableCellMenuPopup: React.FC<TableCellMenuComponentProps> = ({
   setPopupOpen,
   popupOpen,
 }) => {
-  const commands = useCommands();
+  const { chain, commands } = useRemirrorContext();
 
   // close the popup after clicking
   const handleClick = (command: () => void) => {
@@ -127,11 +127,17 @@ const DefaultTableCellMenuPopup: React.FC<TableCellMenuComponentProps> = ({
 
       <DefaultTableCellMenuItem
         label="Remove column"
-        onClick={handleClick(commands.deleteTableColumn)}
+        onClick={handleClick(() => {
+          commands.deleteTableColumn();
+          commands.applyAlternateColor();
+        })}
       />
       <DefaultTableCellMenuItem
         label="Remove row"
-        onClick={handleClick(commands.deleteTableRow)}
+        onClick={handleClick(() => {
+          commands.deleteTableRow();
+          commands.applyAlternateColor();
+        })}
       />
       <DefaultTableCellMenuItem
         label="Remove table"

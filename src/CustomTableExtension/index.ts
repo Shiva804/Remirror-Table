@@ -15,6 +15,7 @@ export {
   defaultBorder,
   defaultBorderColor,
   defaultBackgroundColor,
-} from "./CustomTableExtension";
+} from // alternateColor,
+"./CustomTableExtension";
 
 export { createTable, createTableOptions } from "./table-utils";

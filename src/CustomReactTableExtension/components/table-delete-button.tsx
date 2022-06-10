@@ -1,21 +1,37 @@
-import React, { CSSProperties, MouseEventHandler, useCallback } from 'react';
-import type { EditorView, FindProsemirrorNodeResult } from '@remirror/core';
-import { findParentNodeOfType, isElementDomNode } from '@remirror/core';
+import React, { CSSProperties, MouseEventHandler, useCallback } from "react";
+import type {
+  DispatchFunction,
+  EditorView,
+  FindProsemirrorNodeResult,
+} from "@remirror/core";
+import { findParentNodeOfType, isElementDomNode } from "@remirror/core";
 import {
   defaultAbsolutePosition,
   hasStateChanged,
   isPositionVisible,
   Positioner,
-} from '@remirror/extension-positioner';
-import { deleteColumn, deleteRow, isCellSelection, TableMap } from '@remirror/pm/tables';
-import { Icon, PositionerPortal } from '@remirror/react-components';
-import { useRemirrorContext } from '@remirror/react-core';
-import type { UsePositionerReturn } from '@remirror/react-hooks';
-import { usePositioner } from '@remirror/react-hooks';
-import { ExtensionTablesTheme } from '@remirror/theme';
+} from "@remirror/extension-positioner";
+import {
+  deleteColumn,
+  deleteRow,
+  isCellSelection,
+  TableMap,
+} from "@remirror/pm/tables";
 
-import { CellSelectionType, getCellSelectionType, setPredelete } from '../utils/controller';
-import { mergeDOMRects } from '../utils/dom';
+// import { alternateColor } from "../../CustomTableExtension";
+
+import { Icon, PositionerPortal } from "@remirror/react-components";
+import { useRemirrorContext } from "@remirror/react-core";
+import type { UsePositionerReturn } from "@remirror/react-hooks";
+import { usePositioner } from "@remirror/react-hooks";
+import { ExtensionTablesTheme } from "@remirror/theme";
+
+import {
+  CellSelectionType,
+  getCellSelectionType,
+  setPredelete,
+} from "../utils/controller";
+import { mergeDOMRects } from "../utils/dom";
 
 interface DeleteButtonPositionerData {
   tableResult: FindProsemirrorNodeResult;
@@ -39,7 +55,10 @@ function createDeleteButtonPositioner(): Positioner<DeleteButtonPositionerData> 
           cellSelectionType === CellSelectionType.col ||
           cellSelectionType === CellSelectionType.row
         ) {
-          const tableResult = findParentNodeOfType({ types: 'table', selection });
+          const tableResult = findParentNodeOfType({
+            types: "table",
+            selection,
+          });
 
           if (tableResult) {
             const positionerData: DeleteButtonPositionerData = {
@@ -76,7 +95,10 @@ function createDeleteButtonPositioner(): Positioner<DeleteButtonPositionerData> 
       // Don't show the delete button if there is only one row/column (excluded controllers).
       if (data.cellSelectionType === CellSelectionType.col && map.width <= 2) {
         return defaultAbsolutePosition;
-      } else if (data.cellSelectionType === CellSelectionType.row && map.height <= 2) {
+      } else if (
+        data.cellSelectionType === CellSelectionType.row &&
+        map.height <= 2
+      ) {
         return defaultAbsolutePosition;
       }
 
@@ -97,8 +119,22 @@ function createDeleteButtonPositioner(): Positioner<DeleteButtonPositionerData> 
       const margin = 16;
 
       return data.cellSelectionType === CellSelectionType.row
-        ? { rect, visible, height: 0, width: 0, x: left - margin, y: top + height / 2 }
-        : { rect, visible, height: 0, width: 0, x: left + width / 2, y: top - margin };
+        ? {
+            rect,
+            visible,
+            height: 0,
+            width: 0,
+            x: left - margin,
+            y: top + height / 2,
+          }
+        : {
+            rect,
+            visible,
+            height: 0,
+            width: 0,
+            x: left + width / 2,
+            y: top - margin,
+          };
     },
   });
 }
@@ -125,12 +161,9 @@ export interface TableDeleteRowColumnInnerButtonProps {
   onMouseOut: MouseEventHandler;
 }
 
-export const TableDeleteRowColumnInnerButton: React.FC<TableDeleteRowColumnInnerButtonProps> = ({
-  position,
-  onClick,
-  onMouseOver,
-  onMouseOut,
-}) => {
+export const TableDeleteRowColumnInnerButton: React.FC<
+  TableDeleteRowColumnInnerButtonProps
+> = ({ position, onClick, onMouseOver, onMouseOut }) => {
   const size = 18;
   return (
     <div
@@ -143,13 +176,13 @@ export const TableDeleteRowColumnInnerButton: React.FC<TableDeleteRowColumnInner
       onMouseOut={onMouseOut}
       style={
         {
-          '--remirror-table-delete-button-y': `${position.y}px`,
-          '--remirror-table-delete-button-x': `${position.x}px`,
+          "--remirror-table-delete-button-y": `${position.y}px`,
+          "--remirror-table-delete-button-x": `${position.x}px`,
         } as CSSProperties
       }
       className={ExtensionTablesTheme.TABLE_DELETE_ROW_COLUMN_INNER_BUTTON}
     >
-      <Icon name='closeFill' size={size} color={'#ffffff'} />
+      <Icon name="closeFill" size={size} color={"#ffffff"} />
     </div>
   );
 };
@@ -166,19 +199,25 @@ function usePosition() {
 }
 
 function useEvents(view: EditorView) {
-  const handleClick = useCallback(() => {
-    const selection = view.state.selection;
+  const { commands } = useRemirrorContext();
 
-    if (isCellSelection(selection)) {
-      const cellSelectionType = getCellSelectionType(selection);
+  const handleClick = useCallback(
+    (props) => {
+      const selection = view.state.selection;
 
-      if (cellSelectionType === CellSelectionType.row) {
-        deleteRow(view.state, view.dispatch);
-      } else if (cellSelectionType === CellSelectionType.col) {
-        deleteColumn(view.state, view.dispatch);
+      if (isCellSelection(selection)) {
+        const cellSelectionType = getCellSelectionType(selection);
+
+        if (cellSelectionType === CellSelectionType.row) {
+          deleteRow(view.state, view.dispatch);
+        } else if (cellSelectionType === CellSelectionType.col) {
+          deleteColumn(view.state, view.dispatch);
+          commands.applyAlternateColor();
+        }
       }
-    }
-  }, [view]);
+    },
+    [view]
+  );
 
   const handleMouseOver = useCallback(() => setPredelete(view, true), [view]);
 
@@ -187,9 +226,9 @@ function useEvents(view: EditorView) {
   return { handleClick, handleMouseOver, handleMouseOut };
 }
 
-export const TableDeleteRowColumnButton: React.FC<TableDeleteRowColumnButtonProps> = ({
-  Component,
-}) => {
+export const TableDeleteRowColumnButton: React.FC<
+  TableDeleteRowColumnButtonProps
+> = ({ Component }) => {
   const { view } = useRemirrorContext();
   const position = usePosition();
   const { handleClick, handleMouseOver, handleMouseOut } = useEvents(view);

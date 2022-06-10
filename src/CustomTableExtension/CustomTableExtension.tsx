@@ -427,6 +427,13 @@ export class CustomTableExtension extends NodeExtension<TableOptions> {
     };
   }
 
+  // @command()
+  // applyAlternateColor(): CommandFunction {
+  //   return (props) => {
+  //     return alternateColor(props);
+  //   };
+  // }
+
   /**
    * This managers the updates of the collaboration provider.
    */
@@ -533,21 +540,28 @@ export function defaultBorder(
 
   const found = findParentNodeOfType({ selection, types: "table" })!;
 
-  //Only the last character of the id changes, so
-  //we can remove the last character and check the row ids
-  const tableId = found.node.attrs.id.slice(0, -1);
-
   tr = tr.setNodeMarkup(found.pos, undefined, {
     ...found.node.attrs,
     border,
   });
+  let currSelection = selection.from;
 
+  let last: number;
+  let curTable = false;
   tr.doc.descendants((node, pos, parent) => {
-    if (
-      (node.type.name == "tableCell" || node.type.name == "tableHeaderCell") &&
-      !node.attrs.highlight
-    ) {
-      if (parent.attrs.id.slice(0, -1) == tableId) {
+    if (node.type.name == "table" && currSelection > pos) {
+      last = pos + node.nodeSize;
+      if (currSelection < last) {
+        curTable = true;
+      }
+    }
+
+    if (pos <= last && curTable) {
+      if (
+        (node.type.name == "tableCell" ||
+          node.type.name == "tableHeaderCell") &&
+        !node.attrs.highlight
+      ) {
         tr = tr.setNodeMarkup(pos, undefined, {
           ...node.attrs,
           border,
@@ -569,47 +583,51 @@ export function defaultBorderColor(
   const { selection } = tr;
 
   const found = findParentNodeOfType({ selection, types: "table" })!;
-  const id = found.node.attrs.id;
 
-  //Only the last character of the id changes, so
-  //we can remove the last character and check the row ids
-  const tableId = found.node.attrs.id.slice(0, -1);
-
-  let border;
-  if (found.node.attrs.border != null) {
-    border = found.node.attrs.border;
-  } else {
-    border = "2px solid";
-  }
+  // let border;
+  // if (found.node.attrs.border != null) {
+  //   border = found.node.attrs.border;
+  // } else {
+  //   border = "2px solid";
+  // }
 
   tr = tr.setNodeMarkup(found.pos, undefined, {
     ...found.node.attrs,
     borderColor,
-    border,
+    // border,
   });
 
+  let currSelection = selection.from;
+
+  let last: number;
+  let curTable = false;
   tr.doc.descendants((node, pos, parent) => {
-    if (node.isBlock) {
+    if (node.type.name == "table" && currSelection > pos) {
+      last = pos + node.nodeSize;
+      if (currSelection < last) {
+        curTable = true;
+      }
+    }
+
+    if (pos <= last && curTable) {
       if (
         (node.type.name == "tableCell" ||
           node.type.name == "tableHeaderCell") &&
         !node.attrs.highlight
       ) {
-        if (parent.attrs.id.slice(0, -1) == tableId) {
-          let border;
-          if (node.attrs.border != null) {
-            border = node.attrs.border;
-          } else {
-            border = "2px solid";
-          }
-          console.log("border", border);
-          // console.log(node);
-          tr = tr.setNodeMarkup(pos, undefined, {
-            ...node.attrs,
-            border,
-            borderColor,
-          });
-        }
+        // let border;
+        // if (node.attrs.border != null) {
+        //   border = node.attrs.border;
+        // } else {
+        //   border = "2px solid";
+        // }
+        // console.log("border", border);
+        // console.log(node);
+        tr = tr.setNodeMarkup(pos, undefined, {
+          ...node.attrs,
+          // border,
+          borderColor,
+        });
       }
     }
   });
@@ -634,21 +652,93 @@ export function defaultBackgroundColor(
     background,
   });
 
-  tr.doc.descendants((node, pos) => {
-    if (
-      (node.type.name == "tableCell" || node.type.name == "tableHeaderCell") &&
-      !node.attrs.highlight
-    ) {
-      tr = tr.setNodeMarkup(pos, undefined, {
-        ...node.attrs,
-        background,
-      });
+  let currSelection = selection.from;
+
+  let last: number;
+  let curTable = false;
+  tr.doc.descendants((node, pos, parent) => {
+    if (node.type.name == "table" && currSelection > pos) {
+      last = pos + node.nodeSize;
+      if (currSelection < last) {
+        curTable = true;
+      }
+    }
+
+    if (pos <= last && curTable) {
+      if (
+        (node.type.name == "tableCell" ||
+          node.type.name == "tableHeaderCell") &&
+        !node.attrs.highlight
+      ) {
+        tr = tr.setNodeMarkup(pos, undefined, {
+          ...node.attrs,
+          background,
+        });
+      }
     }
   });
   dispatch?.(tr);
 
   return true;
 }
+
+// export function alternateColor(
+//   props: CommandFunctionProps<Schema<string, string>> & object,
+//   rowDeleted: boolean = false
+// ) {
+//   let { dispatch, state, tr } = props;
+
+//   const { selection } = tr;
+
+//   const found = findParentNodeOfType({ selection, types: "table" })!;
+
+//   tr = tr.setNodeMarkup(found.pos, undefined, {
+//     ...found.node.attrs,
+//   });
+//   let currSelection = selection.from;
+
+//   let last: number;
+//   let curTable = false;
+//   let count = 0;
+
+//   tr.doc.descendants((node, pos, parent) => {
+//     if (node.type.name == "table" && currSelection > pos) {
+//       last = pos + node.nodeSize;
+//       if (currSelection < last) {
+//         curTable = true;
+//         let totalRows = node.content.childCount;
+//         console.log("totalRows", totalRows);
+//         if (node.attrs.alternateColor == "false") {
+//           tr = tr.setNodeMarkup(pos, undefined, {
+//             ...node.attrs,
+//             alternateColor: "true",
+//           });
+//         }
+//       }
+//     }
+
+//     if (pos <= last && curTable) {
+//       if (node.type.name == "tableRow") {
+//         count += 1;
+//       }
+
+//       if (
+//         (node.type.name == "tableCell" ||
+//           node.type.name == "tableHeaderCell") &&
+//         !node.attrs.highlight &&
+//         count % 2 != 0
+//       ) {
+//         tr = tr.setNodeMarkup(pos, undefined, {
+//           ...node.attrs,
+//           background: "#E6E6E6",
+//         });
+//       }
+//     }
+//   });
+//   dispatch?.(tr);
+
+//   return true;
+// }
 
 function toggleMergeCellCommand({ state, dispatch }: CommandFunctionProps) {
   if (mergeCells(state, dispatch)) {
