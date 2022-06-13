@@ -5,6 +5,11 @@ import {
   TextColorExtension,
   BoldExtension,
   FontFamilyExtension,
+  ItalicExtension,
+  UnderlineExtension,
+  ListItemExtension,
+  OrderedListExtension,
+  BulletListExtension,
 } from "remirror/extensions";
 // import { TableCellMenu } from "./Components/table-cell-menu";
 import { cx, uniqueId } from "remirror";
@@ -39,11 +44,11 @@ const CommandMenu = () => {
   const [borderColor, setBorderColor] = useState("");
   const [defaultBorder, setDefaultBorder] = useState("");
   const [defaultBorderColor, setDefaultBorderColor] = useState("");
-  // const [alternateColor, setAlternateColor] = useState(false);
+  const [alternateColor, setAlternateColor] = useState(false);
 
   return (
     <div>
-      {/* <br />
+      <br />
       <input
         type="checkbox"
         id="alternate-color"
@@ -52,7 +57,7 @@ const CommandMenu = () => {
       <label htmlFor="alternate-color">
         Alternate table color (Default: Grey color)
       </label>
-      <br></br> */}
+      <br></br>
       <br />
       <button
         onClick={() => {
@@ -62,9 +67,9 @@ const CommandMenu = () => {
             withHeaderRow: true,
           });
 
-          // if (alternateColor) {
-          //   commands.applyAlternateColor();
-          // }
+          if (alternateColor) {
+            commands.applyAlternateColor();
+          }
         }}
       >
         Create Table 3 x 3
@@ -234,23 +239,34 @@ const extensions = () => [
       border: "null",
       background: "null",
       borderColor: "null",
-      // alternateColor: "false",
+      alternateColor: "false",
     },
   }),
 
   new TextColorExtension(),
-  new BoldExtension(),
-  new FontFamilyExtension(),
+  // new BoldExtension(),
+  // new ItalicExtension(),
+  // new UnderlineExtension(),
+  // new ListItemExtension(),
+  // new OrderedListExtension(),
+  // new BulletListExtension(),
+  // new FontFamilyExtension(),
 ];
 
 const App = () => {
-  const { manager, state } = useRemirror({ extensions });
-
+  const { manager, state, onChange } = useRemirror({ extensions });
+  // console.log(state);
   return (
     <>
       <ThemeProvider>
-        <Remirror manager={manager} initialContent={state} autoFocus={true}>
-          <EditorComponent />
+        <Remirror
+          manager={manager}
+          initialContent={state}
+          autoFocus={true}
+          autoRender={"start"}
+          onChange={onChange}
+        >
+          {/* <EditorComponent /> */}
           <CommandMenu />
 
           {/* <TableCellMenu /> */}

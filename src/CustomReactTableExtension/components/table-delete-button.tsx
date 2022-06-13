@@ -18,6 +18,8 @@ import {
   TableMap,
 } from "@remirror/pm/tables";
 
+import { alternateColor } from "../../CustomTableExtension";
+
 // import { alternateColor } from "../../CustomTableExtension";
 
 import { Icon, PositionerPortal } from "@remirror/react-components";
@@ -212,7 +214,12 @@ function useEvents(view: EditorView) {
           deleteRow(view.state, view.dispatch);
         } else if (cellSelectionType === CellSelectionType.col) {
           deleteColumn(view.state, view.dispatch);
-          commands.applyAlternateColor();
+          // commands.applyAlternateColor();
+          alternateColor({
+            dispatch: view.dispatch,
+            state: view.state,
+            tr: view.state.tr,
+          });
         }
       }
     },

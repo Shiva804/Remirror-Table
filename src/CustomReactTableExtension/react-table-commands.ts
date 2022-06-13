@@ -14,7 +14,7 @@ import {
 import { setAttr } from "./table-column-resizing";
 
 import {
-  // alternateColor,
+  alternateColor,
   defaultBackgroundColor,
   defaultBorder,
   defaultBorderColor,
@@ -76,9 +76,9 @@ export function addColumn(
   defaultBorder({ dispatch, state, tr }, border);
   defaultBackgroundColor({ dispatch, state, tr }, background);
   defaultBorderColor({ dispatch, state, tr }, borderColor);
-  // if (alternateColorAttr === "true" && background == "null") {
-  //   alternateColor({ dispatch, state, tr });
-  // }
+  if (alternateColorAttr === "true" && background == "null") {
+    alternateColor({ dispatch, state, tr });
+  }
 
   return tr;
 }
@@ -178,9 +178,9 @@ export function addRow(
   defaultBorder({ dispatch, state, tr }, border);
   defaultBackgroundColor({ dispatch, state, tr }, background);
   defaultBorderColor({ dispatch, state, tr }, borderColor);
-  // if (alternateColorAttr === "true" && background == "null") {
-  //   alternateColor({ dispatch, state, tr });
-  // }
+  if (alternateColorAttr === "true" && background == "null") {
+    alternateColor({ dispatch, state, tr });
+  }
 
   // defaultBorder(, border);
   // if (border !== "") {

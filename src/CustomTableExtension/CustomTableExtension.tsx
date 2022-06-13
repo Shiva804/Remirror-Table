@@ -427,12 +427,12 @@ export class CustomTableExtension extends NodeExtension<TableOptions> {
     };
   }
 
-  // @command()
-  // applyAlternateColor(): CommandFunction {
-  //   return (props) => {
-  //     return alternateColor(props);
-  //   };
-  // }
+  @command()
+  applyAlternateColor(): CommandFunction {
+    return (props) => {
+      return alternateColor(props);
+    };
+  }
 
   /**
    * This managers the updates of the collaboration provider.
@@ -682,63 +682,70 @@ export function defaultBackgroundColor(
   return true;
 }
 
-// export function alternateColor(
-//   props: CommandFunctionProps<Schema<string, string>> & object,
-//   rowDeleted: boolean = false
-// ) {
-//   let { dispatch, state, tr } = props;
+export function alternateColor(
+  props: CommandFunctionProps<Schema<string, string>> & object,
+  rowDeleted: boolean = false
+) {
+  console.log(props);
+  let { dispatch, state, tr } = props;
 
-//   const { selection } = tr;
+  const { selection } = tr;
 
-//   const found = findParentNodeOfType({ selection, types: "table" })!;
+  const found = findParentNodeOfType({ selection, types: "table" })!;
 
-//   tr = tr.setNodeMarkup(found.pos, undefined, {
-//     ...found.node.attrs,
-//   });
-//   let currSelection = selection.from;
+  tr = tr.setNodeMarkup(found.pos, undefined, {
+    ...found.node.attrs,
+  });
+  let currSelection = selection.from;
 
-//   let last: number;
-//   let curTable = false;
-//   let count = 0;
+  let last: number;
+  let curTable = false;
+  let count = 0;
 
-//   tr.doc.descendants((node, pos, parent) => {
-//     if (node.type.name == "table" && currSelection > pos) {
-//       last = pos + node.nodeSize;
-//       if (currSelection < last) {
-//         curTable = true;
-//         let totalRows = node.content.childCount;
-//         console.log("totalRows", totalRows);
-//         if (node.attrs.alternateColor == "false") {
-//           tr = tr.setNodeMarkup(pos, undefined, {
-//             ...node.attrs,
-//             alternateColor: "true",
-//           });
-//         }
-//       }
-//     }
+  tr.doc.descendants((node, pos, parent) => {
+    if (node.type.name == "table" && currSelection > pos) {
+      last = pos + node.nodeSize;
+      if (currSelection < last) {
+        curTable = true;
+        let totalRows = node.content.childCount;
+        console.log("totalRows", totalRows);
+        if (node.attrs.alternateColor == "false") {
+          tr = tr.setNodeMarkup(pos, undefined, {
+            ...node.attrs,
+            alternateColor: "true",
+          });
+        }
+      }
+    }
 
-//     if (pos <= last && curTable) {
-//       if (node.type.name == "tableRow") {
-//         count += 1;
-//       }
+    if (pos <= last && curTable) {
+      if (node.type.name == "tableRow") {
+        count += 1;
+      }
 
-//       if (
-//         (node.type.name == "tableCell" ||
-//           node.type.name == "tableHeaderCell") &&
-//         !node.attrs.highlight &&
-//         count % 2 != 0
-//       ) {
-//         tr = tr.setNodeMarkup(pos, undefined, {
-//           ...node.attrs,
-//           background: "#E6E6E6",
-//         });
-//       }
-//     }
-//   });
-//   dispatch?.(tr);
+      if (
+        (node.type.name == "tableCell" ||
+          node.type.name == "tableHeaderCell") &&
+        !node.attrs.highlight
+      ) {
+        if (count % 2 != 0) {
+          tr = tr.setNodeMarkup(pos, undefined, {
+            ...node.attrs,
+            background: "#E6E6E6",
+          });
+        } else {
+          tr = tr.setNodeMarkup(pos, undefined, {
+            ...node.attrs,
+            background: "null",
+          });
+        }
+      }
+    }
+  });
+  dispatch?.(tr);
 
-//   return true;
-// }
+  return true;
+}
 
 function toggleMergeCellCommand({ state, dispatch }: CommandFunctionProps) {
   if (mergeCells(state, dispatch)) {
